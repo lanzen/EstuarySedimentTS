@@ -1,0 +1,1 @@
+Scripts and dataset corresponding to the manuscript Garate et al. Contrasting dynamics and biotic association networks in estuarine microbenthic communities along an environmental disturbance gradient, submitted to FEMS MIcrobiology Ecology
