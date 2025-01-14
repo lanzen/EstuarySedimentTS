@@ -29,7 +29,7 @@ dim(md.16S) #827 samples
 # dim(md.16S.s) #510 samples
 
 ## Read and check annotated SV (SWARM) table
-otus.all.16S = read.delim("16S/CREST_LULU/SWARM_table_curated.tsv",
+otus.all.16S = read.delim("SWARM_table_curated.tsv",
                           sep="\t",header=T,row.names=1)
 dim(otus.all.16S) #204,225 SVs, 346 samples
 
@@ -37,7 +37,7 @@ dim(otus.all.16S) #204,225 SVs, 346 samples
 otus.all.16S = otus.all.16S[,-dim(otus.all.16S)[2]]
 
 # Parse CREST4 taxonomy results
-tax.16S=makeTaxonomy(crest4_assignment_file = "16S/SWARM_OTUs_curated.fasta.crest4/assignments.txt.gz")
+tax.16S=makeTaxonomy(crest4_assignment_file = "assignments.txt.gz")
 summary(tax.16S)
 table(row.names(tax.16S) %in% row.names(otus.all.16S)) # Different order
 
