@@ -8,13 +8,15 @@
 
 # SilvaMod138PR2 used for classification
 
-setwd("~/projects/IndiRed/SWARM_Oct2022_S/")
-source('R/utils/filtering.R')
-source('R/utils/taxaplot.R')
-source('R/utils/diversity.r')
-source('R/utils/mergeOTUTable.R')
-source("R/utils/seasonalityIndVal.R")
-source("R/utils/taxFunctions.R")
+## CHANGE TO WORKING DIR
+## setwd("~/projects/IndiRed/SWARM_Oct2022_S/")
+
+source('R/filtering.R')
+source('R/taxaplot.R')
+source('R/diversity.r')
+source('R/mergeOTUTable.R')
+source("RseasonalityIndVal.R")
+source("RtaxFunctions.R")
 
 require(vegan)
 
