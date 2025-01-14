@@ -32,30 +32,13 @@ otus.all.16S = read.delim("16S/CREST_LULU/SWARM_table_curated.tsv",
                           sep="\t",header=T,row.names=1)
 dim(otus.all.16S) #204,225 SVs, 346 samples
 
-# Use updated taxonomy script to make taxonomy (July 2024)
+# Remove Classification column
+otus.all.16S = otus.all.16S[,-dim(otus.all.16S)[2]]
+
+# Parse CREST4 taxonomy results
 tax.16S=makeTaxonomy(crest4_assignment_file = "16S/SWARM_OTUs_curated.fasta.crest4/assignments.txt.gz")
 summary(tax.16S)
 table(row.names(tax.16S) %in% row.names(otus.all.16S)) # Different order
-
-# Metabridge tax, to find unseen taxa for category
-mbtax = makeTaxonomy(crest4_assignment_file = "../../Metabridge/MethodsComp/2_analysis/4_crest4/16S/SVs/assignments.txt")
-summary(!tax.16S$phylum %in% mbtax$phylum)
-new_phyla = tax.16S[!tax.16S$phylum %in% mbtax$phylum,]
-summary(new_phyla)
-
-new_class = tax.16S[!tax.16S$class %in% mbtax$class,]
-new_class = new_class[new_class$domain!="Eukaryota",]
-new_class = new_class[!new_class$phylum %in% new_phyla$phylum,]
-summary(new_class)
-
-new_order = tax.16S[!tax.16S$order %in% mbtax$order,]
-new_order = new_order[new_order$domain!="Eukaryota",]
-new_order = new_order[!new_order$phylum %in% new_phlya$phylum,]
-new_order = new_order[!new_order$class %in% new_class$class,]
-summary(new_order)
-
-# Remove Classification column
-otus.all.16S = otus.all.16S[,-dim(otus.all.16S)[2]]
 
 ## Check that all included samples are in metadata or should be removed if not
 names(otus.all.16S)[!(names(otus.all.16S) %in% md.16S$X16SName)]
@@ -136,9 +119,6 @@ summary(sigCont$Cat)
 # Mitochondria  Prok-prok symbionts or parasites                              NA's 
 #                                 1                                 1                                 1 
 
-row.names(sigCont)
-"SWARM_4556" %in% row.names(sigCont) #TRUE
-
 ## Remove contaminants
 otus.16S.clean = otus.t.16S[,!(names(otus.t.16S) %in% row.names(sigCont))]
 
@@ -183,15 +163,13 @@ summary(rowSums(otus.16S.clean))
 # Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
 #483   43514   64304   71290   91447  430874 
 
+## Remove all samples with coverage below 5000 reads
 row.names(otus.16S.clean)[rowSums(otus.16S.clean)<5000]
 # "EOK20-Spatial21"  "EUBalenciaga-A03"
 
 otus.16S.clean = otus.16S.clean[rowSums(otus.16S.clean)>5000,]
 md.16S.s = md.16S.s[row.names(otus.16S.clean),]
 
-writeDivStats("16SDiversity_clean_all.csv",otus.16S.clean)
-div.16S = read.csv("16SDiversity_clean_all.csv", header=T, row.names=1)
-table(row.names(md.16S.s) == row.names(div.16S))
 
 ## Abundance filtering:
 ## Remove rare OTUs below detection limit of ~5 reads in at least 1 dataset 
@@ -244,29 +222,6 @@ printANOVA(md.16S.final[,c(9,16,18:21,24,25)], div.16S.final,.01) # nothing inte
 tax.16S.final = tax.16S[names(otus.s.16S.final),]
 table(row.names(tax.16S.final) == names(otus.s.16S.final))
 cat.16S.final = decostand(mergeOTUsByTaxa(otus.s.16S.final, tax.16S.final, rank="category"), method="total")
-printANOVA(md.16S.final[,c(9,16,18:21,24,25)], cat.16S.final,.01) # nothing interesting
-# Some diffs with xkit and run, probably due to sample selection
-
-otus.s.16S.final.ra = decostand(otus.s.16S.final,method="total")
-cae = otus.s.16S.final.ra[,!is.na(tax.16S.final$category) & tax.16S.final$category=="Chemoautotrophic aerobic prok"]
-tax.cae = tax.16S.final[names(cae),]
-caeBH = mergeOTUsByTaxa(cae, tax.cae)
-sort(colSums(caeBH)/309, decreasing = T) # Dominated by Epsilonproteo and Thaum
-
-hap = otus.s.16S.final.ra[,!is.na(tax.16S.final$category) & tax.16S.final$category=="Host associated prok"]
-tax.hap = tax.16S.final[names(hap),]
-hapBH = mergeOTUsByTaxa(hap, tax.hap)
-sort(colSums(hapBH)/309, decreasing = T) # Thiomicrospiraceae, NB1-j, Turicibacter, very little
-
-hap = otus.s.16S.final.ra[,!is.na(tax.16S.final$category) & tax.16S.final$category=="Methanotrophs"]
-tax.hap = tax.16S.final[names(hap),]
-hapBH = mergeOTUsByTaxa(hap, tax.hap)
-sort(colSums(hapBH)/309, decreasing = T) # Methylomarinum, Methylotenera, ---
-
-hap = otus.s.16S.final.ra[,!is.na(tax.16S.final$category) & tax.16S.final$category=="Prok-prok symbionts or parasites"]
-tax.hap = tax.16S.final[names(hap),]
-hapBH = mergeOTUsByTaxa(hap, tax.hap)
-sort(colSums(hapBH)/309, decreasing = T) # Woesearchaeales, Micavibrionales,Nanoarchaeia ---
 
 
 # ---- Boxplot of div per month and station -----
