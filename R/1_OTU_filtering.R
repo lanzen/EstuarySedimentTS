@@ -29,7 +29,7 @@ dim(md.16S) #827 samples
 # dim(md.16S.s) #510 samples
 
 ## Read and check annotated SV (SWARM) table
-otus.all.16S = read.delim("SWARM_table_curated.tsv",
+otus.all.16S = read.delim("SWARM_table_curated.tsv.gz",
                           sep="\t",header=T,row.names=1)
 dim(otus.all.16S) #204,225 SVs, 346 samples
 
